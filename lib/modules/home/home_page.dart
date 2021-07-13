@@ -1,4 +1,6 @@
 import 'package:desafio_api/modules/home/home_controller.dart';
+import 'package:desafio_api/modules/home/home_repository.dart';
+import 'package:desafio_api/shared/widgets/post_list_tile.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -15,6 +17,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final controller = HomeController();
 
+  final repository = HomeRepository();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,26 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
             children: List.generate(
               posts.length,
               (index) => Card(
-                child: ListTile(
-                  leading: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      color: Colors.orange.shade600,
-                    ),
-                    child: Center(
-                      child: Text(
-                        posts[index].id.toString(),
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ),
-                  title: Text(posts[index].title),
-                ),
+                child: PostListTileWidget(post: posts[index]),
               ),
             ),
           ),
@@ -59,7 +44,11 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             ElevatedButton(
               onPressed: () async {
-                posts = await controller.getPosts(posts);
+                await controller.getPosts();
+                posts = controller.posts;
+                controller.listen((status) {
+                  print(status);
+                });
                 setState(() {});
               },
               child: Row(

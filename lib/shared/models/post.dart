@@ -21,4 +21,9 @@ class Post {
     data['body'] = this.body;
     return data;
   }
+
+  //sobrescrita de funções padrões
+  @override
+  String toString() =>
+      "userId: $userId, id: $id, title: $title, body: $body"; // declarar toString para poder enxergar no print
 }

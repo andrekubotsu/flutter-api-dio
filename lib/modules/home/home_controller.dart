@@ -1,20 +1,29 @@
-import 'dart:convert';
-
-import 'package:desafio_api/shared/custom_dio/custom_dio.dart';
-
+import 'package:desafio_api/modules/home/home_repository.dart';
 import 'package:desafio_api/shared/models/post.dart';
 
+enum HomeStatus { empty, loading, success, error }
+
 class HomeController {
-  Future getPosts(posts) async {
-    final client = CustomDio();
+  final repository = HomeRepository();
+  Function(HomeStatus status)? _onListen;
+  var posts = <Post>[];
+  var status = HomeStatus.empty;
 
-    final response = await client.get("/posts");
+  Future<void> getPosts() async {
+    status = HomeStatus.loading;
+    final response = await repository.getPosts();
+    posts = response;
+    status = HomeStatus.success;
+  }
 
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.data) as List;
-      posts = json.map((e) => Post.fromJson(e)).toList();
-
-      return posts;
+  void update(HomeStatus status) {
+    this.status = status;
+    if (_onListen != null) {
+      _onListen!(this.status);
     }
+  }
+
+  void listen(Function(HomeStatus status) onChange) {
+    _onListen = onChange;
   }
 }
