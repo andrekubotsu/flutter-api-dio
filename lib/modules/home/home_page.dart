@@ -1,5 +1,4 @@
 import 'package:desafio_api/modules/home/home_controller.dart';
-import 'package:desafio_api/modules/home/home_repository.dart';
 import 'package:desafio_api/shared/widgets/post_list_tile.dart';
 import 'package:flutter/material.dart';
 
@@ -13,78 +12,43 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List posts = [];
-
   final controller = HomeController();
 
-  final repository = HomeRepository();
+  @override
+  void initState() {
+    controller.getPosts();
+    controller.listen(
+      (status) => {
+        if (status == HomeStatus.success)
+          {
+            setState(
+              () {},
+            ),
+          }
+      },
+    );
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            widget.title,
-            style: TextStyle(color: Colors.white),
-          ),
+      appBar: AppBar(
+        title: Text(
+          widget.title,
+          style: TextStyle(color: Colors.white),
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: List.generate(
-              posts.length,
-              (index) => Card(
-                child: PostListTileWidget(post: posts[index]),
+      ),
+      body: controller.status == HomeStatus.success
+          ? ListView.builder(
+              itemCount: controller.posts.length,
+              itemBuilder: (_, index) => PostListTileWidget(
+                post: controller.posts[index],
               ),
+            )
+          : Center(
+              child: CircularProgressIndicator(),
             ),
-          ),
-        ),
-        floatingActionButton: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            ElevatedButton(
-              onPressed: () async {
-                await controller.getPosts();
-                posts = controller.posts;
-                controller.listen((status) {
-                  print(status);
-                });
-                setState(() {});
-              },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "Clique aqui p/ baixar os dados ",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  Icon(
-                    Icons.download,
-                    color: Colors.white,
-                  ),
-                ],
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                posts = [];
-                setState(() {});
-              },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "Limpar tela ",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  Icon(
-                    Icons.clear,
-                    color: Colors.white,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ));
+    );
   }
 }
